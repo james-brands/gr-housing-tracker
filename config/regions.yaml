@@ -1,0 +1,32 @@
+metro:
+  name: Grand Rapids, MI metro area
+  redfin_id: 24340
+
+towns:
+  - name: Grand Rapids
+    redfin_id: 8694
+  - name: Hudsonville
+    redfin_id: 10135
+  - name: Allendale
+    redfin_id: 21172
+  - name: Jenison
+    redfin_id: 23892
+  - name: Grandville
+    redfin_id: 8725
+  - name: Wyoming
+    redfin_id: 21105
+  - name: Kentwood
+    redfin_id: 10896
+  - name: Byron Center
+    redfin_id: 21861
+  - name: Rockford
+    redfin_id: 17672
+  - name: Walker
+    redfin_id: 20573
+
+redfin_filters:
+  property_type: Single Family Residential
+  seasonally_adjusted: false
+
+fred:
+  series_id: MORTGAGE30US
