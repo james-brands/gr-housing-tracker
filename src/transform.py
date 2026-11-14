@@ -1,6 +1,9 @@
+import os
+
 import duckdb
 
 DB_PATH = "data/housing.duckdb"
+EXPORT_DIR = "data/processed"
 
 
 def main():
@@ -18,6 +21,13 @@ def main():
         WHERE month = (SELECT MAX(month) FROM market_metrics)
         ORDER BY region_level DESC, price DESC
     """))
+
+    # Export the dashboard tables as CSV. These small files are what get committed,
+    # and git only sees a change when the numbers actually change.
+    os.makedirs(EXPORT_DIR, exist_ok=True)
+    con.execute(f"COPY (SELECT * FROM market_metrics ORDER BY region_id, month) TO '{EXPORT_DIR}/market_metrics.csv'")
+    con.execute(f"COPY (SELECT * FROM monthly_rates ORDER BY month) TO '{EXPORT_DIR}/monthly_rates.csv'")
+    print(f"Exported market_metrics.csv and monthly_rates.csv to {EXPORT_DIR}/")
     con.close()
 
 

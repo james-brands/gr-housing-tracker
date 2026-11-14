@@ -1,0 +1,56 @@
+name: Weekly data update
+
+on:
+  schedule:
+    - cron: "0 12 * * 5"   # Fridays 12:00 UTC = 7am Eastern (winter)
+  workflow_dispatch:        # adds a "Run workflow" button for manual runs
+
+permissions:
+  contents: write           # lets the job push the updated CSVs back to the repo
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Pull FRED mortgage rates
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python src/pull_fred.py
+
+      - name: Pull Redfin market data
+        run: python src/pull_redfin.py
+
+      - name: Load into DuckDB
+        run: python src/load_db.py
+
+      - name: Build metrics and export
+        run: python src/transform.py
+
+      - name: Check data
+        run: python src/check_data.py
+
+      - name: Commit changes, if any
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/processed/
+          if git diff --cached --quiet; then
+            echo "No changes in the data this week."
+          else
+            git commit -m "Weekly data update $(date -u +%Y-%m-%d)"
+            git push
+          fi
+          
