@@ -4,7 +4,7 @@
 CREATE OR REPLACE VIEW monthly_rates AS
 SELECT
     date_trunc('month', week_date)::DATE AS month,
-    ROUND(AVG(rate_30yr), 2)             AS rate_30yr
+        ROUND(SUM(rate_30yr::DECIMAL(5,2)) / COUNT(*), 2) AS rate_30yr
 FROM mortgage_rates
 GROUP BY 1;
 
